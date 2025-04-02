@@ -1,0 +1,101 @@
+<section id="events" style="display: none;">
+  <h2>Events</h2>
+  <div id="event-list" class="event-grid"></div>
+  <div id="admin-event-form" class="admin-form">
+    <h3>Create Event</h3>
+    <input type="text" id="event-name" placeholder="Event Name">
+    <select id="event-tier">
+      <option value="Solace">Solace</option>
+      <option value="Lovers">Lovers</option>
+      <option value="Loyal">Loyal</option>
+      <option value="Servitude">Servitude</option>
+      <option value="Echelon">Echelon</option>
+    </select>
+    <input type="datetime-local" id="event-start">
+    <input type="datetime-local" id="event-end">
+    <input type="number" id="event-stock" placeholder="Stock" min="1">
+    <button onclick="createEvent()">Create</button>
+  </div>
+</section>
+
+<script>
+  // Function to create an event via API
+  function createEvent() {
+    const name = document.getElementById('event-name').value;
+    const tier = document.getElementById('event-tier').value;
+    const startDate = document.getElementById('event-start').value;
+    const endDate = document.getElementById('event-end').value;
+    const stock = document.getElementById('event-stock').value;
+
+    // Validate the form inputs
+    if (!name || !tier || !startDate || !endDate || !stock) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    // Send the event creation request to the server
+    fetch('/event/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}` // Assuming the token is stored in localStorage
+      },
+      body: JSON.stringify({
+        name,
+        tier,
+        startDate,
+        endDate,
+        stock
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert("Event created successfully!");
+          loadEvents();  // Reload the event list to reflect the new event
+        } else {
+          alert("Error creating event: " + data.error);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while creating the event.');
+      });
+  }
+
+  // Function to load the events from the server and display them
+  function loadEvents() {
+    fetch('/events', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    })
+      .then(response => response.json())
+      .then(events => {
+        const eventList = document.getElementById('event-list');
+        eventList.innerHTML = '';  // Clear the previous list
+
+        events.forEach(event => {
+          const eventElement = document.createElement('div');
+          eventElement.classList.add('event-item');
+          eventElement.innerHTML = `
+            <h4>${event.name}</h4>
+            <p>Tier: ${event.tier}</p>
+            <p>Start: ${new Date(event.startDate).toLocaleString()}</p>
+            <p>End: ${new Date(event.endDate).toLocaleString()}</p>
+            <p>Stock: ${event.stock}</p>
+          `;
+          eventList.appendChild(eventElement);
+        });
+      })
+      .catch(error => {
+        console.error('Error loading events:', error);
+      });
+  }
+
+  // Initial call to load events when the page loads
+  window.onload = () => {
+    loadEvents();
+  };
+</script>

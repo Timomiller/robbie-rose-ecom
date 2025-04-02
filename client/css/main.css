@@ -1,0 +1,482 @@
+/* Product Grid Layout */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.product {
+  background: #fff;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transition: transform 0.3s;
+  cursor: pointer;
+}
+
+.product:hover { 
+  transform: scale(1.05); 
+}
+
+.product img { 
+  max-width: 100%; 
+  border-radius: 5px; 
+}
+
+#filters { 
+  margin: 20px; 
+  display: flex; 
+  gap: 10px; 
+}
+
+#filters select, 
+#filters input { 
+  padding: 5px; 
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.close { 
+  float: right; 
+  font-size: 24px; 
+  cursor: pointer; 
+}
+
+.hidden { 
+  display: none; 
+}
+
+/* Body Background */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: url('/assets/background-texture.png') repeat;
+  background-size: 256px 256px;
+  background-color: #f0f0f0;
+  position: relative;
+  overflow: hidden; /* Contain particles */
+  color: #333;
+}
+
+/* Background Overlay and Particles */
+.background-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Allow clicks through */
+  background: linear-gradient(to bottom, rgba(240,240,240,0.3), rgba(224,224,224,0.3));
+  transition: transform 0.2s ease, opacity 0.5s ease;
+  z-index: -1;
+}
+
+.background-particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes drift {
+  0% { 
+    transform: translate(0, 0); 
+    opacity: 0.5; 
+  }
+  100% { 
+    transform: translate(var(--dx), var(--dy)); 
+    opacity: 0; 
+  }
+}
+
+/* Header */
+header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background: linear-gradient(to right, #f0f0f0, #e0e0e0);
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  z-index: 1000;
+}
+
+.logo {
+  font-size: 28px;
+  font-weight: bold;
+  transition: opacity 0.5s;
+}
+
+.logo.fade {
+  opacity: 0;
+}
+
+.back-arrow {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  margin-right: 20px;
+}
+
+.menu-toggle {
+  margin-left: auto;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+/* Menu Drawer */
+.menu-drawer {
+  position: fixed;
+  top: 60px;
+  right: -250px;
+  width: 250px;
+  height: 100%;
+  background: #fff;
+  box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+  transition: right 0.3s ease;
+  padding: 20px;
+}
+
+.menu-drawer.open {
+  right: 0;
+}
+
+.menu-drawer a {
+  display: block;
+  padding: 10px 0;
+  text-decoration: none;
+  color: #333;
+  font-size: 18px;
+}
+
+/* Button Styling */
+button {
+  background: #d0d0d0;
+  border: none;
+  border-radius: 25px;
+  padding: 10px 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+button:hover {
+  transform: scale(1.05);
+}
+
+main {
+  padding-top: 70px;
+}
+
+section {
+  padding: 20px;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Notification Popup */
+.notification-popup {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  display: none;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* Mobile Media Queries */
+@media (max-width: 768px) {
+  header { 
+    flex-direction: column; 
+    padding: 10px; 
+    align-items: flex-start; 
+  }
+  
+  .logo { 
+    font-size: 1.2em; 
+    margin-bottom: 10px; 
+  }
+  
+  .menu-toggle { 
+    margin-left: auto; 
+  }
+  
+  .menu-drawer { 
+    width: 100%; 
+    top: 60px; 
+    left: 0; 
+  }
+  
+  .menu-drawer.open { 
+    height: auto; 
+  }
+  
+  section { 
+    padding: 10px; 
+  }
+  
+  button { 
+    font-size: 14px; 
+    padding: 8px 16px; 
+  }
+  
+  #shop div, 
+  #events div, 
+  #leaderboard-content div { 
+    width: 100%; 
+    margin: 5px 0; 
+  }
+  
+  .notification-popup { 
+    bottom: 10px; 
+    width: 90%; 
+    left: 5%; 
+  }
+}
+
+@media (max-width: 480px) {
+  h1 { 
+    font-size: 1.5em; 
+  }
+  
+  input, textarea { 
+    width: 100%; 
+  }
+  
+  .progress-bar { 
+    width: 100%; 
+  }
+}
+
+/* Event and Leaderboard Styles */
+#events div, 
+#leaderboard div, 
+#shop div {
+  margin: 10px 0;
+  padding: 10px;
+  background: #f9f9f9;
+  border-radius: 10px;
+}
+
+.product {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 5px;
+  background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transition: transform 0.3s;
+}
+
+.product:hover {
+  transform: scale(1.05);
+}
+
+.event-ticker {
+  position: fixed;
+  top: 60px;
+  width: 100%;
+  background: rgba(249,249,249,0.9);
+  padding: 10px;
+  text-align: center;
+  font-size: 14px;
+  overflow: hidden;
+  white-space: nowrap;
+  z-index: 900;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#ticker-content {
+  display: inline-block;
+  animation: scroll 15s linear infinite;
+}
+
+#ticker:hover #ticker-content {
+  animation-play-state: paused;
+}
+
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+
+/* Progress Bar Styling */
+.progress-container {
+  width: 100%;
+  max-width: 300px;
+  background: #e0e0e0;
+  border-radius: 25px;
+  overflow: hidden;
+  margin: 10px 0;
+}
+
+.progress-bar {
+  height: 20px;
+  background: linear-gradient(to right, #d0d0d0, #a0a0a0);
+  transition: width 0.5s ease;
+}
+
+/* Product Card Styling */
+.product-card {
+  margin: 10px 0;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.product-card img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.low-stock {
+  color: #e00;
+  font-weight: bold;
+}
+
+/* Page Transition */
+.page-transition {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.page-transition.active {
+  opacity: 1;
+}
+
+/* Menu Drawer Image */
+.menu-drawer img {
+  width: 20px;
+  vertical-align: middle;
+  margin-right: 10px;
+}
+
+/* History Section Styles */
+#purchase-history, 
+#event-history, 
+#notification-log {
+  max-height: 200px;
+  overflow-y: auto;
+  background: #f9f9f9;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+/* Leaderboard Styles */
+#leaderboard-content div:nth-child(1) {
+  border: 2px solid #ffd700;
+  transform: scale(1.1);
+  box-shadow: 0 0 10px #ffd700;
+  animation: glow 1s infinite alternate;
+}
+
+#leaderboard-content div:nth-child(2) {
+  border: 2px solid #c0c0c0;
+  transform: scale(1.05);
+}
+
+#leaderboard-content div:nth-child(3) {
+  border: 2px solid #cd7f32;
+}
+
+#leaderboard-content div:nth-child(n+4) {
+  opacity: 0.8;
+}
+
+@keyframes glow {
+  0% { box-shadow: 0 0 10px #ffd700; }
+  100% { box-shadow: 0 0 15px #ffd700; }
+}
+
+/* Event Grid Layout */
+.event-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.event {
+  background: #fff3e0;
+  padding: 15px;
+  border-radius: 10px;
+  animation: fadeIn 0.5s;
+}
+
+.event.locked {
+  opacity: 0.5;
+  background: #e0e0e0;
+}
+
+.admin-form {
+  margin: 20px;
+  padding: 15px;
+  background: #f0f0f0;
+  border-radius: 10px;
+}
+
+.admin-form input, .admin-form select {
+  display: block;
+  margin: 10px 0;
+  padding: 5px;
+  width: 100%;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .event-grid { grid-template-columns: 1fr; }
+  .admin-form { padding: 10px; }
+}
