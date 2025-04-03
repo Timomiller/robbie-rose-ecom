@@ -3,17 +3,39 @@ const Shopify = require('shopify-api-node');
 const router = express.Router();
 const db = require('../config/db');
 const jwt = require('jsonwebtoken');
+require('dotenv').config();  // Ensure environment variables are loaded
 
+// Log environment variables for debugging
+console.log("SHOPIFY_SHOP_NAME:", process.env.SHOPIFY_SHOP_NAME);
+console.log("SHOPIFY_API_KEY:", process.env.SHOPIFY_API_KEY ? 'Loaded' : 'Missing');
+console.log("SHOPIFY_API_PASSWORD:", process.env.SHOPIFY_API_PASSWORD ? 'Loaded' : 'Missing');
+
+// Validate Shopify credentials before initializing
+if (!process.env.SHOPIFY_SHOP_NAME || !process.env.SHOPIFY_API_PASSWORD) {
+  throw new Error('Missing Shopify API credentials in .env file');
+}
+
+// Initialize Shopify API client
 const shopify = new Shopify({
   shopName: process.env.SHOPIFY_SHOP_NAME,
-  apiKey: process.env.SHOPIFY_API_KEY,
-  password: process.env.SHOPIFY_API_PASSWORD,
+  accessToken: process.env.SHOPIFY_API_PASSWORD, // Use private app password
 });
 
-// Authentication middleware
+// Test Shopify API connection
+(async () => {
+  try {
+    const shopInfo = await shopify.shop.get();
+    console.log(`✅ Connected to Shopify Store: ${shopInfo.name}`);
+  } catch (err) {
+    console.error('❌ Shopify API connection failed:', err.message);
+  }
+})();
+
+// Authentication Middleware
 function authenticate(req, res, next) {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'No token' });
+  const token = req.headers.authorization?.split(' ')[1]; // Bearer token
+  if (!token) return res.status(401).json({ error: 'No token provided' });
+
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
     if (err) return res.status(401).json({ error: 'Invalid token' });
     req.userId = decoded.id;
@@ -23,46 +45,51 @@ function authenticate(req, res, next) {
 
 // Get products with optional filtering by category and maxPrice
 router.get('/products', async (req, res) => {
-  const { category, maxPrice } = req.query;
   try {
-    const products = await shopify.product.list();
-    let filtered = products;
+    const { category, maxPrice } = req.query;
+    let products = await shopify.product.list();
+
     if (category) {
-      filtered = filtered.filter(p => p.product_type === category);
+      products = products.filter(p => p.product_type === category);
     }
     if (maxPrice) {
-      filtered = filtered.filter(p => parseFloat(p.variants[0].price) <= parseFloat(maxPrice));
+      products = products.filter(p => parseFloat(p.variants[0].price) <= parseFloat(maxPrice));
     }
-    res.json(filtered);
+
+    res.json(products);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Failed to fetch products', details: err.message });
   }
 });
 
 // Checkout and purchase flow
 router.post('/checkout', authenticate, async (req, res) => {
-  const { productId } = req.body;
-  const userId = req.userId;
   try {
-    // Fetch product details
+    const { productId } = req.body;
+    if (!productId) return res.status(400).json({ error: 'Product ID is required' });
+
     const product = await shopify.product.get(productId);
     const variantId = product.variants[0].id;
     const amount = product.variants[0].price;
 
     // Create checkout session with Shopify
     const checkout = await shopify.checkout.create({
-      lineItems: [{ variantId, quantity: 1 }],
+      line_items: [{ variant_id: variantId, quantity: 1 }],  // Correct Shopify field
     });
 
+    // Log environment variables before checkout for debugging
+    console.log("SHOPIFY_SHOP_NAME:", process.env.SHOPIFY_SHOP_NAME);
+    console.log("SHOPIFY_API_KEY:", process.env.SHOPIFY_API_KEY ? 'Loaded' : 'Missing');
+    console.log("SHOPIFY_API_PASSWORD:", process.env.SHOPIFY_API_PASSWORD ? 'Loaded' : 'Missing');
+
     // Log purchase in the database
-    db.run('INSERT INTO purchases (userId, amount, date) VALUES (?, ?, ?)',
-      [userId, amount, new Date().toISOString()],
+    db.run('INSERT INTO purchases (userId, amount, date) VALUES (?, ?, ?)', 
+      [req.userId, amount, new Date().toISOString()], 
       (err) => { if (err) console.error(err); });
 
-    // Return checkout URL
     res.json({ checkoutUrl: checkout.webUrl });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Checkout failed', details: err.message });
   }
 });
 
