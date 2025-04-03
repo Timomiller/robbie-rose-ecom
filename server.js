@@ -23,11 +23,16 @@ if (process.env.NODE_ENV === 'production') {
 app.use(express.json());
 
 // Serving static files from the client folder
-app.use(express.static(path.join(__dirname, 'client')));  // Adjusted for current directory structure
+app.use(express.static(path.join(__dirname, 'client')));
 
-// Define Routes
-app.use('/auth', require('./routes/auth'));
-app.use('/shop', require('./routes/shop'));
+// Load routes
+app.use('/auth', require('./server/routes/auth'));
+app.use('/shop', require('./server/routes/shop'));
+
+// Basic route for the root
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client', 'index.html'));
+});
 
 // WebSocket Server Setup
 wss.on('connection', (ws) => {
