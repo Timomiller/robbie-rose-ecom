@@ -2,22 +2,12 @@ const express = require('express');
 const { WebSocketServer } = require('ws');
 const http = require('http');
 const path = require('path');
-const db = require('./server/config/db');
+// const db = require('./server/config/db'); // Comment out until DB is set up
 require('dotenv').config();
 
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
-
-// HTTPS redirect in production
-if (process.env.NODE_ENV === 'production') {
-  app.use((req, res, next) => {
-    if (req.headers['x-forwarded-proto'] !== 'https') {
-      return res.redirect(`https://${req.headers.host}${req.url}`);
-    }
-    next();
-  });
-}
 
 // Middleware for JSON parsing
 app.use(express.json());
@@ -34,7 +24,8 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'client', 'index.html'));
 });
 
-// WebSocket Server Setup
+// WebSocket Server Setup (commented out until DB is set up)
+/*
 wss.on('connection', (ws) => {
   console.log('Client connected');
   ws.on('message', (message) => {
@@ -48,8 +39,10 @@ wss.on('connection', (ws) => {
     }
   });
 });
+*/
 
-// Helper Function: Update points and tier
+// Helper Function: Update points and tier (commented out)
+/*
 function updatePointsAndTier(userId, amount) {
   const points = Math.floor(amount * 0.8);
   db.run('UPDATE users SET points = points + ? WHERE id = ?', [points, userId], (err) => {
@@ -67,8 +60,10 @@ function updatePointsAndTier(userId, amount) {
     });
   });
 }
+*/
 
-// Helper Function: Broadcast messages to all clients
+// Helper Function: Broadcast messages to all clients (commented out)
+/*
 function broadcast(data) {
   wss.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
@@ -81,6 +76,7 @@ function broadcast(data) {
     }
   });
 }
+*/
 
 // Authentication Middleware
 function authenticate(req, res, next) {
@@ -89,7 +85,8 @@ function authenticate(req, res, next) {
   next();
 }
 
-// Routes
+// Routes (commented out until DB is set up)
+/*
 app.get('/leaderboard', (req, res) => {
   db.all('SELECT username, points, tier, profilePic FROM users ORDER BY points DESC LIMIT 10', [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -104,7 +101,6 @@ app.get('/notifications', authenticate, (req, res) => {
   });
 });
 
-// Database Table Setup (for Notifications)
 db.run(`
   CREATE TABLE IF NOT EXISTS notifications (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -114,6 +110,7 @@ db.run(`
     FOREIGN KEY (userId) REFERENCES users(id)
   )
 `);
+*/
 
 // Start the server
 const PORT = process.env.PORT || 3000;
