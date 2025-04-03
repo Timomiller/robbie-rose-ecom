@@ -13,6 +13,7 @@
   "dependencies": {
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "express-session": "^1.18.1",
     "gasp": "^0.0.2",
     "jsonwebtoken": "^9.0.2",
     "nginx": "^1.0.8",
