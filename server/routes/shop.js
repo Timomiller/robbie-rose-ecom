@@ -8,17 +8,17 @@ require('dotenv').config();  // Ensure environment variables are loaded
 // Log environment variables for debugging
 console.log("SHOPIFY_SHOP_NAME:", process.env.SHOPIFY_SHOP_NAME);
 console.log("SHOPIFY_API_KEY:", process.env.SHOPIFY_API_KEY ? 'Loaded' : 'Missing');
-console.log("SHOPIFY_API_PASSWORD:", process.env.SHOPIFY_API_PASSWORD ? 'Loaded' : 'Missing');
+console.log("SHOPIFY_ACCESS_TOKEN:", process.env.SHOPIFY_ACCESS_TOKEN ? 'Loaded' : 'Missing'); // Corrected key
 
 // Validate Shopify credentials before initializing
-if (!process.env.SHOPIFY_SHOP_NAME || !process.env.SHOPIFY_API_PASSWORD) {
+if (!process.env.SHOPIFY_SHOP_NAME || !process.env.SHOPIFY_ACCESS_TOKEN) {
   throw new Error('Missing Shopify API credentials in .env file');
 }
 
 // Initialize Shopify API client
 const shopify = new Shopify({
   shopName: process.env.SHOPIFY_SHOP_NAME,
-  accessToken: process.env.SHOPIFY_API_PASSWORD, // Use private app password
+  accessToken: process.env.SHOPIFY_ACCESS_TOKEN, // Corrected to use the access token
 });
 
 // Test Shopify API connection
@@ -80,7 +80,7 @@ router.post('/checkout', authenticate, async (req, res) => {
     // Log environment variables before checkout for debugging
     console.log("SHOPIFY_SHOP_NAME:", process.env.SHOPIFY_SHOP_NAME);
     console.log("SHOPIFY_API_KEY:", process.env.SHOPIFY_API_KEY ? 'Loaded' : 'Missing');
-    console.log("SHOPIFY_API_PASSWORD:", process.env.SHOPIFY_API_PASSWORD ? 'Loaded' : 'Missing');
+    console.log("SHOPIFY_ACCESS_TOKEN:", process.env.SHOPIFY_ACCESS_TOKEN ? 'Loaded' : 'Missing');
 
     // Log purchase in the database
     db.run('INSERT INTO purchases (userId, amount, date) VALUES (?, ?, ?)', 
